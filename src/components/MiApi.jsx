@@ -1,50 +1,66 @@
-import { useState , useEffect } from "react";
+/* eslint-disable react/prop-types */
+import { useState, useEffect } from "react";
 import Table from "react-bootstrap/Table";
 
-function MiApi() {
-    // 3-info guardará los valores traídos desde la API
-    const [info, setInfo] = useState([]);
-    // 2-Llamamos a la función consultarApi al momento de montar el componente
-    useEffect(() => {
-      consultarApi();
-    }, []);
-    // 1-Función que consulta la API
-    const consultarApi = async () => {
-      const url = "https://datos.gob.cl/api/3/action/datastore_search?resource_id=a7a89d98-254c-4ab3-af66-2d54766cce68";
-      const response = await fetch(url);
-      const data = await response.json();
-      setInfo(data);
-      // Con setInfo actualizamos el estado
-    };
-    return (
-        <div className="pb-5">
-        <Table responsive striped bordered hover>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Correo</th>
-              <th>Edad</th>
-              <th>Cargo</th>
-              <th>Telefono</th>
-            </tr>
-          </thead>
-          <tbody>
-            {info.map((objeto) => (
-              <tr key={objeto._id}>
-                <td>{objeto._id}</td>
-                <td>{objeto.REGIONGEOGRAFICA}</td>
-                <td>{objeto.NOM_GASTO}</td>
-                <td>{objeto.SUBTIPOGASTO2}</td>
-                <td>{objeto.FECHALICITACION.toDateString()}</td>
-                <td>{objeto.telefono}</td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </div>
-    );
-  }
-  
+function MiApi({ arrayPokemones, pokeFiltro }) {
+  const [info, setInfo] = useState([]);
 
-export default MiApi
+  useEffect(() => {
+    pokeFiltro ? setInfo(pokeFiltro) : consultarApi();
+  }, [pokeFiltro]);
+
+  const consultarApi = async () => {
+    const url = "https://pokeapi.co/api/v2/pokemon?limit=1025&offset=0";
+    const response = await fetch(url);
+    const pre_data = await response.json();
+    const responses = await Promise.all(
+      pre_data.results.map((objeto) => fetch(objeto.url))
+    );
+    const data = await Promise.all(
+      responses.map((response) => response.json())
+    );
+    arrayPokemones(data.sort((a,b) => a.id - b.id));
+    setInfo(data.sort((a,b) => a.id - b.id));
+  };
+
+  return (
+    <div className="py-3 fs-5">
+      <Table responsive striped bordered hover>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Tipo 1</th>
+            <th>Tipo 2</th>
+            <th>Imagen</th>
+          </tr>
+        </thead>
+        <tbody>
+          {info.map((objeto) => (
+            <tr key={objeto.id}>
+              <td className="align-middle">{objeto.id}</td>
+              <td className="align-middle">
+                {objeto.name.charAt(0).toUpperCase() + objeto.name.slice(1)}
+              </td>
+              <td className="align-middle">
+                {objeto.types[0].type.name.charAt(0).toUpperCase() +
+                  objeto.types[0].type.name.slice(1)}
+              </td>
+              <td className="align-middle">
+                {objeto.types[1]
+                  ? objeto.types[1].type.name.charAt(0).toUpperCase() +
+                    objeto.types[1].type.name.slice(1)
+                  : "-"}
+              </td>
+              <td>
+                <img src={objeto.sprites.front_default} alt="" />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    </div>
+  );
+}
+
+export default MiApi;
