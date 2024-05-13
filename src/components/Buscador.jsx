@@ -34,14 +34,8 @@ function Buscador({ arrayPokemones, setFiltro }) {
 
   return (
     <div>
-      {/* <select value={tipoFiltro} onChange={handleTipoFiltroChange}>
-        <option value="name">Nombre</option>
-        <option value="id">ID</option>
-        <option value="types">Tipos</option>
-      </select>
-      <input type="text" onChange={(e) => handleSearch(e.target.value)} /> */}
       <Form className=" d-flex ">
-        <Form.Select 
+        <Form.Select
           className="w-25 "
           aria-label="Default select example"
           value={tipoFiltro}

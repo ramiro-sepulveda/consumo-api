@@ -7,6 +7,7 @@ function MiApi({ arrayPokemones, pokeFiltro }) {
 
   useEffect(() => {
     pokeFiltro ? setInfo(pokeFiltro) : consultarApi();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pokeFiltro]);
 
   const consultarApi = async () => {
